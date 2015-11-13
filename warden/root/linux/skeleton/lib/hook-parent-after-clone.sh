@@ -55,6 +55,28 @@ done
 
 echo $PID > ./run/wshd.pid
 
+mac_addr=$(printf '02:42:%02x:%02x:%02x:%02x' ${network_container_ip//./ })
+
+# ${id} is the warden handle
+
+if [ ! /var/run/netns/overlay -ef /tmp/o ]; then
+  rm -f /var/run/netns/overlay
+  ln -s /tmp/o /var/run/netns/overlay
+fi
+
+ip link add v-${id}-1 mtu 1450 type veth peer name o-${id}-1 mtu 1450
+ip link set v-${id}-1 netns overlay
+#ip netns exec overlay ip -d link set dev vetha1 name veth1
+ip netns exec overlay brctl addif br0 v-${id}-1
+ip netns exec overlay ip link set v-${id}-1 up
+
+ip link set dev o-${id}-1 address $mac_addr
+ip link set dev o-${id}-1 up
+ip link set dev o-${id}-1 netns $PID
+rm -f /var/run/netns/$PID || true
+ln -s /proc/$PID/ns/net /var/run/netns/$PID
+ip netns exec $PID ip addr add $(printf "10.10.%.s%.s%d.%d" ${network_container_ip//./ }) dev o-${id}-1
+
 ip link add name $network_host_iface type veth peer name $network_container_iface
 ip link set $network_host_iface netns 1
 ip link set $network_container_iface netns $PID

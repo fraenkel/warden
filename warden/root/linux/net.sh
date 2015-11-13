@@ -195,8 +195,33 @@ function setup_nat() {
       --jump MASQUERADE
 }
 
+function setup_overlay() {
+  teardown_overlay
+
+  bridge_gatway_cidr='10.10.0.1/24'
+
+  touch /tmp/o
+  ip netns add overlay
+  mount --bind /var/run/netns/overlay /tmp/o
+
+  ip netns exec overlay ip link add dev br0 type bridge
+  ip link add dev vxlan1 type vxlan id 42 l2miss l3miss proxy learning
+  ip link set vxlan1 netns overlay
+  ip netns exec overlay brctl addif br0 vxlan1
+  ip netns exec overlay ip addr add dev br0 $bridge_gatway_cidr
+  ip netns exec overlay ip li set vxlan1 up
+  ip netns exec overlay ip li set br0 up
+}
+
+function teardown_overlay() {
+  umount /tmp/o || true
+  rm /tmp/o
+  rm -f /var/run/netns/overlay
+}
+
 case "${1}" in
   setup)
+    setup_overlay
     setup_filter
     setup_nat
 
@@ -206,6 +231,7 @@ case "${1}" in
   teardown)
     teardown_filter
     teardown_nat
+    teardown_overlay
     ;;
   *)
     echo "Unknown command: ${1}" 1>&2
