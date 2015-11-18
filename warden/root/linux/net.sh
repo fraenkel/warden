@@ -214,8 +214,10 @@ function setup_overlay() {
 }
 
 function teardown_overlay() {
+  # if umount fails we have some issues
   umount /tmp/o || true
-  rm /tmp/o
+  ip netns delete overlay || true
+  rm -f /tmp/o
   rm -f /var/run/netns/overlay
 }
 
