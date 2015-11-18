@@ -70,12 +70,12 @@ ip link set v-${id}-1 netns overlay
 ip netns exec overlay brctl addif br0 v-${id}-1
 ip netns exec overlay ip link set v-${id}-1 up
 
-ip link set dev o-${id}-1 address $mac_addr
-ip link set dev o-${id}-1 up
-ip link set dev o-${id}-1 netns $PID
 rm -f /var/run/netns/$PID || true
 ln -s /proc/$PID/ns/net /var/run/netns/$PID
-ip netns exec $PID ip addr add $(printf "10.10.%.s%.s%d.%d" ${network_container_ip//./ }) dev o-${id}-1
+ip link set dev o-${id}-1 netns $PID
+ip netns exec $PID ip link set dev o-${id}-1 name o-eth address $mac_addr
+ip netns exec $PID ip addr add dev o-eth $(printf "10.10.%.s%.s%d.%d/24" ${network_container_ip//./ })
+ip netns exec $PID ip link set dev o-eth up
 
 ip link add name $network_host_iface type veth peer name $network_container_iface
 ip link set $network_host_iface netns 1
