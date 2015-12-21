@@ -106,15 +106,15 @@ else
   cp /etc/resolv.conf mnt/etc/
 fi
 
-old_user_uid=$(cat mnt/etc/passwd | grep 'vcap:' | cut -d ':' -f 3) 
-old_group_gid=$(cat mnt/etc/group | grep 'vcap:' | cut -d ':' -f 3) 
+old_user_uid=$(cat mnt/etc/passwd | grep 'vcap:' | cut -d ':' -f 3)
+old_group_gid=$(cat mnt/etc/group | grep 'vcap:' | cut -d ':' -f 3)
 
 $(which chroot) mnt env -i /bin/bash -l <<-EOS
 if [ -z $old_group_gid ]
 then
   groupadd -g $group_gid vcap
 else
-  groupmod -g $group_gid vcap 
+  groupmod -g $group_gid vcap
   find / -group $old_group_gid -exec chgrp -h $group_gid {} \;
 fi
 
@@ -126,4 +126,3 @@ else
   find / -user $old_user_uid -exec chown -h $user_uid {} \;
 fi
 EOS
-

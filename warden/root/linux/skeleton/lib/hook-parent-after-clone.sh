@@ -14,6 +14,9 @@ for system_path in /tmp/warden/cgroup/*
 do
   instance_path=$system_path/instance-$id
 
+  # skip symlinks
+  [[ -L "$system_path" ]] && continue
+
   mkdir -p $instance_path
 
   if [ $(basename $system_path) == "cpuset" ]

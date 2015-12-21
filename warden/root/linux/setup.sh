@@ -30,8 +30,8 @@ then
     mount -t tmpfs none $cgroup_path
   fi
 
-  # Mount cgroup subsystems individually
-  for subsystem in cpu cpuacct devices memory
+  # Mount cgroup subsystems
+  for subsystem in cpu,cpuacct devices memory
   do
     mkdir -p $cgroup_path/$subsystem
 
@@ -40,6 +40,8 @@ then
       mount -t cgroup -o $subsystem none $cgroup_path/$subsystem
     fi
   done
+  [ ! -d $cgroup_path/cpu ] && ln -s $cgroup_path/cpu,cpuacct $cgroup_path/cpu
+  [ ! -d $cgroup_path/cpuacct ] && ln -s $cgroup_path/cpu,cpuacct $cgroup_path/cpuacct
 fi
 
 ./net.sh setup

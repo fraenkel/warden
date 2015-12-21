@@ -36,6 +36,7 @@ function teardown_filter() {
 }
 
 function setup_filter() {
+  echo "Setup filter"
   teardown_filter
 
   # Create instance chain
@@ -70,6 +71,7 @@ function teardown_nat() {
 }
 
 function setup_nat() {
+  echo "Setup nat"
   teardown_nat
 
   # Create instance chain

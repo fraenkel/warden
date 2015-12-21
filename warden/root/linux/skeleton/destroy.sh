@@ -41,6 +41,9 @@ then
   # Remove cgroups
   for system_path in /tmp/warden/cgroup/*
   do
+    # skip symlinks
+    [[ -L "$system_path" ]] && continue
+
     path=$system_path/instance-$id
 
     if [ -d $path ]
