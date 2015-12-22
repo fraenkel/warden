@@ -31,7 +31,7 @@ then
   fi
 
   # Mount cgroup subsystems
-  for subsystem in cpu,cpuacct devices memory
+  for subsystem in cpu cpuacct devices memory
   do
     mkdir -p $cgroup_path/$subsystem
 
